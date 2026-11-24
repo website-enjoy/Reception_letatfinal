@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rapport quotidien de la cuisine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#e8eceb; --card:#f7f9f8; --ink:#14201c; --muted:#5b6b65; --line:#c9d2cf;
+  --accent:#0f6b4f; --accent-ink:#ffffff; --warn:#b3261e; --ticket:#ffffff; --ticket-ink:#1a1a1a;
+  --focus:#e0a500; color-scheme:light;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1714; --card:#18231f; --ink:#e8f0ed; --muted:#93a59d; --line:#2c3b36;
+    --accent:#3fc08f; --accent-ink:#06150f; --warn:#ff8a80; --ticket:#f3f1ea; --ticket-ink:#1a1a1a; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1714; --card:#18231f; --ink:#e8f0ed; --muted:#93a59d; --line:#2c3b36;
+  --accent:#3fc08f; --accent-ink:#06150f; --warn:#ff8a80; --ticket:#f3f1ea; --ticket-ink:#1a1a1a; color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Barlow","Segoe UI",system-ui,sans-serif;font-size:16px;line-height:1.5}
+main{max-width:520px;margin:0 auto;padding:16px 14px 32px}
+h1{font-size:22px;font-weight:800;margin:4px 0 2px}
+.sub{color:var(--muted);font-size:14px;margin:0 0 14px}
+.tabs{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;background:var(--card);padding:5px;border-radius:14px;border:1px solid var(--line)}
+.tab{border:0;background:transparent;color:var(--muted);font:inherit;font-weight:600;padding:10px 4px;border-radius:10px;cursor:pointer;min-height:44px}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+.tab:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+section.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:12px}
+label.l{display:block;font-size:14px;font-weight:600;margin-bottom:4px}
+.row{display:grid;grid-template-columns:1fr;gap:10px}
+input.t{width:100%;font:inherit;font-size:18px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);min-height:48px}
+.chips{display:flex;gap:8px}
+.chip{flex:1;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-weight:600;padding:10px;border-radius:10px;min-height:46px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.f{position:relative}
+.f .fr{direction:ltr;text-align:left;font-weight:600;font-size:14px;margin-bottom:4px;display:flex;justify-content:space-between}
+.f .fr span{color:var(--muted);font-weight:400}
+.f input{direction:ltr;text-align:left}
+.f.bad input{border-color:var(--warn)}
+.ticket{margin-top:14px;background:var(--ticket);color:var(--ticket-ink);border-radius:4px;padding:16px 16px 22px;font-family:ui-monospace,"Courier New",monospace;font-size:14px;line-height:1.6;direction:ltr;text-align:left;white-space:pre-wrap;word-break:break-word;
+  box-shadow:0 1px 0 var(--line);
+  --z:8px;-webkit-mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50%/var(--z) 100%;mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50%/var(--z) 100%;
+  padding-bottom:calc(var(--z) + 18px)}
+.status{margin:12px 2px 0;font-size:14px;color:var(--muted);min-height:22px}
+.status.err{color:var(--warn);font-weight:600}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.btn{font:inherit;font-weight:800;border-radius:12px;min-height:52px;border:1.5px solid var(--accent);cursor:pointer}
+.btn.p{background:var(--accent);color:var(--accent-ink)}
+.btn.s{background:transparent;color:var(--accent)}
+.btn.off{opacity:.45}
+.clear{display:block;width:100%;margin-top:10px;background:transparent;border:0;color:var(--muted);font:inherit;padding:10px;cursor:pointer;text-decoration:underline}
+@media (prefers-reduced-motion:no-preference){.tab,.btn,.chip{transition:background .15s,color .15s}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Rapport quotidien de la cuisine</h1>
+  <p class="sub">Remplissez les champs, copiez le message et envoyez-le au groupe, toujours dans le même format.</p>
+
+  <div class="tabs" role="tablist" aria-label="Type de rapport">
+    <button class="tab" role="tab" data-k="rec" aria-selected="true">Réception</button>
+    <button class="tab" role="tab" data-k="fin" aria-selected="false">État final</button>
+  </div>
+
+  <section class="panel">
+    <div class="row">
+      <div>
+        <label class="l" for="name">Nom</label>
+        <input class="t" id="name" type="text" autocomplete="off" placeholder="Ex. : Issam" style="direction:ltr;text-align:left">
+      </div>
+      <div id="placeBox">
+        <label class="l">Lieu</label>
+        <div class="chips">
+          <button class="chip" data-p="3em" aria-pressed="true">3ème (salle)</button>
+          <button class="chip" data-p="Drive" aria-pressed="false">Drive</button>
+        </div>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <div class="ticket" id="ticket" aria-live="polite"></div>
+  <div class="status" id="status"></div>
+  <div class="actions">
+    <button class="btn p" id="copy">Copier le message</button>
+    <button class="btn s" id="wa">Copier et ouvrir WhatsApp</button>
+  </div>
+  <button class="clear" id="clear">Effacer les champs</button>
+</main>
+
+<script>
+(function(){
+  var FORMS = {
+    rec: {head:"La réception", place:false, fields:[
+      {k:"Poulet",u:"kg"},{k:"Viande",u:"kg"},{k:"Steack",u:"kg"},{k:"Frite",u:""},{k:"P. Burger",u:""},{k:"P. Sandwich",u:""}]},
+    fin: {head:"L’état final", place:true, fields:[
+      {k:"Poulet",u:"kg"},{k:"Poulet pané",u:"kg"},{k:"Viande",u:"kg"},{k:"Steak",u:"kg"},{k:"Frite",u:"sacs"},{k:"Pain sandwich",u:""},{k:"Pain burger",u:""}]}
+  };
+  var state = {tab:"rec", vals:{rec:{},fin:{}}, name:"", place:"3em"};
+  var $ = function(s){return document.querySelector(s)};
+  var NUM = /^\d+([.,]\d+)?$/;
+
+  try{ state.name = localStorage.getItem("kr_name")||""; state.place = localStorage.getItem("kr_place")||"3em"; }catch(e){}
+  $("#name").value = state.name;
+
+  function save(){ try{ localStorage.setItem("kr_name",state.name); localStorage.setItem("kr_place",state.place); }catch(e){} }
+
+  function buildGrid(){
+    var f = FORMS[state.tab], g = $("#grid"); g.innerHTML = "";
+    f.fields.forEach(function(fd,i){
+      var d = document.createElement("div"); d.className = "f"; d.dataset.i = i;
+      var fr = document.createElement("div"); fr.className = "fr";
+      var a = document.createElement("b"); a.textContent = fd.k; a.style.fontWeight = "600";
+      var b = document.createElement("span"); b.textContent = fd.u;
+      fr.appendChild(a); fr.appendChild(b);
+      var inp = document.createElement("input"); inp.className = "t"; inp.type = "text"; inp.inputMode = "decimal";
+      inp.autocomplete = "off"; inp.placeholder = "0"; inp.setAttribute("aria-label", fd.k);
+      inp.value = state.vals[state.tab][fd.k] || "";
+      inp.addEventListener("input", function(){ state.vals[state.tab][fd.k] = inp.value.trim(); d.classList.remove("bad"); update(); });
+      d.appendChild(fr); d.appendChild(inp); g.appendChild(d);
+    });
+    $("#placeBox").style.display = f.place ? "" : "none";
+  }
+
+  function missing(){
+    var f = FORMS[state.tab], v = state.vals[state.tab], out = [];
+    f.fields.forEach(function(fd,i){ if(!NUM.test(v[fd.k]||"")) out.push(i); });
+    return out;
+  }
+
+  function message(){
+    var f = FORMS[state.tab], v = state.vals[state.tab];
+    var now = new Date(), p2 = function(n){return String(n).padStart(2,"0")};
+    var date = p2(now.getDate())+"/"+p2(now.getMonth()+1);
+    var line1 = f.head + (f.place ? " — " + state.place : "") + " (" + date + ")";
+    var lines = [line1, "Par : " + (state.name || "…"), ""];
+    f.fields.forEach(function(fd){
+      var x = (v[fd.k]||"").replace(",",".");
+      lines.push(fd.k + " : " + (x===""?"…":x) + (fd.u && x!=="" ? " " + fd.u : ""));
+    });
+    return lines.join("\n");
+  }
+
+  function update(){
+    $("#ticket").textContent = message();
+    var m = missing(), st = $("#status"), ok = m.length===0 && state.name.trim()!=="";
+    $("#copy").classList.toggle("off",!ok); $("#wa").classList.toggle("off",!ok);
+    if(state.name.trim()===""){ st.className="status"; st.textContent="Écrivez d’abord votre nom."; }
+    else if(m.length){ st.className="status"; st.textContent=m.length+" champ"+(m.length>1?"s":"")+" manquant"+(m.length>1?"s":"")+". Écrivez 0 s’il n’y en a pas."; }
+    else { st.className="status"; st.textContent="Message prêt."; }
+  }
+
+  function flagMissing(){
+    var m = missing();
+    document.querySelectorAll(".f").forEach(function(d){ d.classList.toggle("bad", m.indexOf(+d.dataset.i)>-1); });
+  }
+
+  document.querySelectorAll(".tab").forEach(function(t){
+    t.addEventListener("click", function(){
+      state.tab = t.dataset.k;
+      document.querySelectorAll(".tab").forEach(function(x){ x.setAttribute("aria-selected", x===t ? "true":"false"); });
+      buildGrid(); update();
+    });
+  });
+  document.querySelectorAll(".chip").forEach(function(c){
+    c.setAttribute("aria-pressed", c.dataset.p===state.place ? "true":"false");
+    c.addEventListener("click", function(){
+      state.place = c.dataset.p; save();
+      document.querySelectorAll(".chip").forEach(function(x){ x.setAttribute("aria-pressed", x===c ? "true":"false"); });
+      update();
+    });
+  });
+  $("#name").addEventListener("input", function(e){ state.name = e.target.value.trim(); save(); update(); });
+
+  function blocked(){
+    if(missing().length===0 && state.name.trim()!=="") return false;
+    flagMissing(); var st=$("#status"); st.className="status err";
+    st.textContent = state.name.trim()==="" ? "Écrivez d’abord votre nom." : "Les champs en rouge sont vides. Écrivez 0 s’il n’y en a pas.";
+    return true;
+  }
+  $("#copy").addEventListener("click", function(){
+    if(blocked()) return;
+    var txt = message(), st = $("#status");
+    function done(){ st.className="status"; st.textContent="Copié. Collez-le dans le groupe."; }
+    function fallback(){
+      var ta = document.createElement("textarea"); ta.value = txt; ta.style.position="fixed"; ta.style.opacity="0";
+      document.body.appendChild(ta); ta.select();
+      try{ document.execCommand("copy"); done(); }catch(e){ st.className="status err"; st.textContent="Copie impossible. Appuyez longuement sur le message pour le copier."; }
+      document.body.removeChild(ta);
+    }
+    try{ navigator.clipboard.writeText(txt).then(done, fallback); }catch(e){ fallback(); }
+  });
+  $("#wa").addEventListener("click", function(){
+    if(blocked()) return;
+    $("#copy").click();
+    var w = null;
+    try{ w = window.open("https://wa.me/?text="+encodeURIComponent(message()), "_blank"); }catch(e){}
+    if(!w){ var st = $("#status"); setTimeout(function(){ st.className = "status"; st.textContent = "Message copié. Ouvrez WhatsApp et collez-le dans le groupe."; }, 200); }
+  });
+  $("#clear").addEventListener("click", function(){
+    state.vals[state.tab] = {}; buildGrid(); update();
+  });
+  buildGrid(); update();
+})();
+</script>
+</body>
+</html>
